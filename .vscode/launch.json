@@ -1,0 +1,46 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "MCP HTTP Debug Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.mcp_server",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "LINKEDIN_MCP_TRANSPORT": "streamable-http",
+        "FASTMCP_HOST": "127.0.0.1",
+        "FASTMCP_PORT": "8765",
+        "FASTMCP_STREAMABLE_HTTP_PATH": "/mcp",
+        "FASTMCP_LOG_LEVEL": "DEBUG"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "FastAPI API Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "app.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--reload",
+        "--log-level",
+        "debug"
+      ],
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      },
+      "jinja": true,
+      "justMyCode": true
+    }
+  ]
+}
