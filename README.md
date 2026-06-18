@@ -70,9 +70,10 @@ LINKEDIN_CLIENT_ID=
 LINKEDIN_CLIENT_SECRET=
 LINKEDIN_ACCESS_TOKEN=
 LINKEDIN_PERSON_URN=urn:li:person:YOUR_PERSON_ID
+LINKEDIN_ORGANIZATION_URN=urn:li:organization:YOUR_ORGANIZATION_ID
 ```
 
-LinkedIn values are only required when you want to publish directly to LinkedIn.
+LinkedIn values are only required when you want to publish directly to LinkedIn. Use `post_as="personal"` for the member profile or `post_as="company"` for the company page. Company publishing requires `LINKEDIN_ORGANIZATION_URN`.
 
 ## Run FastAPI
 
@@ -285,6 +286,7 @@ curl -X POST http://localhost:8000/api/linkedin/publish \
     "image_path": "storage/images/example.png",
     "saved_post_path": "storage/posts/example.json",
     "approved": true,
+    "post_as": "personal",
     "require_image": true,
     "visibility": "PUBLIC"
   }'

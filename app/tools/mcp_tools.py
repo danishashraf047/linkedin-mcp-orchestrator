@@ -105,6 +105,7 @@ async def publish_to_linkedin(
     image_path: str | None = None,
     saved_post_path: str | None = None,
     visibility: str = "PUBLIC",
+    post_as: str = "personal",
     require_image: bool = True,
     require_saved_artifacts: bool = True,
     approved: bool = False,
@@ -116,6 +117,7 @@ async def publish_to_linkedin(
             image_path=image_path,
             saved_post_path=saved_post_path,
             visibility=visibility,
+            post_as=post_as,
             require_image=require_image,
             require_saved_artifacts=require_saved_artifacts,
             approved=approved,
@@ -130,9 +132,9 @@ async def publish_to_linkedin(
                 verify_approved_image_artifact(request.saved_post_path, request.image_path)
         client = LinkedInClient()
         if request.image_path:
-            result = await client.publish_image_post(request.content, request.image_path, request.visibility)
+            result = await client.publish_image_post(request.content, request.image_path, request.visibility, request.post_as)
         else:
-            result = await client.publish_text_post(request.content, request.visibility)
+            result = await client.publish_text_post(request.content, request.visibility, request.post_as)
         return _ok("LinkedIn post published", linkedin=result.model_dump())
     except Exception as exc:
         return _err("Failed to publish to LinkedIn", exc)

@@ -80,7 +80,7 @@ async def publish_to_linkedin(request: LinkedInPublishRequest) -> dict:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
     client = LinkedInClient()
     if request.image_path:
-        result = await client.publish_image_post(request.content, request.image_path, request.visibility)
+        result = await client.publish_image_post(request.content, request.image_path, request.visibility, request.post_as)
     else:
-        result = await client.publish_text_post(request.content, request.visibility)
+        result = await client.publish_text_post(request.content, request.visibility, request.post_as)
     return result.model_dump()

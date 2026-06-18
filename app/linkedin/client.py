@@ -27,7 +27,11 @@ class LinkedInClient:
             "Content-Type": content_type,
         }
 
-    def _author(self) -> str:
+    def _author(self, post_as: str = "personal") -> str:
+        if post_as == "company":
+            if not self.settings.linkedin_organization_urn:
+                raise ValueError("LINKEDIN_ORGANIZATION_URN is required to publish as company")
+            return self.settings.linkedin_organization_urn
         if not self.settings.linkedin_person_urn:
             raise ValueError("LINKEDIN_PERSON_URN is required")
         return self.settings.linkedin_person_urn
@@ -39,9 +43,15 @@ class LinkedInClient:
             logger.info("linkedin_token_validated")
             return response.json()
 
-    async def publish_text_post(self, content: str, visibility: str = "PUBLIC") -> LinkedInPublishResult:
+    async def publish_text_post(
+        self,
+        content: str,
+        visibility: str = "PUBLIC",
+        post_as: str = "personal",
+    ) -> LinkedInPublishResult:
+        author = self._author(post_as)
         payload = {
-            "author": self._author(),
+            "author": author,
             "commentary": content,
             "visibility": visibility,
             "distribution": {"feedDistribution": "MAIN_FEED", "targetEntities": [], "thirdPartyDistributionChannels": []},
@@ -49,12 +59,19 @@ class LinkedInClient:
             "isReshareDisabledByAuthor": False,
         }
         result = await self._post_ugc(payload)
-        return LinkedInPublishResult(post_id=result.get("id"), status="published", raw_response=result)
+        return LinkedInPublishResult(post_id=result.get("id"), post_as=post_as, author=author, status="published", raw_response=result)
 
-    async def publish_image_post(self, content: str, image_path: str, visibility: str = "PUBLIC") -> LinkedInPublishResult:
-        asset_urn = await self.upload_image_asset(image_path)
+    async def publish_image_post(
+        self,
+        content: str,
+        image_path: str,
+        visibility: str = "PUBLIC",
+        post_as: str = "personal",
+    ) -> LinkedInPublishResult:
+        author = self._author(post_as)
+        asset_urn = await self.upload_image_asset(image_path, post_as)
         payload = {
-            "author": self._author(),
+            "author": author,
             "commentary": content,
             "visibility": visibility,
             "distribution": {"feedDistribution": "MAIN_FEED", "targetEntities": [], "thirdPartyDistributionChannels": []},
@@ -63,13 +80,13 @@ class LinkedInClient:
             "isReshareDisabledByAuthor": False,
         }
         result = await self._post_ugc(payload)
-        return LinkedInPublishResult(post_id=result.get("id"), asset_urn=asset_urn, status="published", raw_response=result)
+        return LinkedInPublishResult(post_id=result.get("id"), asset_urn=asset_urn, post_as=post_as, author=author, status="published", raw_response=result)
 
-    async def upload_image_asset(self, image_path: str) -> str:
+    async def upload_image_asset(self, image_path: str, post_as: str = "personal") -> str:
         path = Path(image_path)
         if not path.exists():
             raise FileNotFoundError(f"Image not found: {image_path}")
-        init_payload = {"initializeUploadRequest": {"owner": self._author()}}
+        init_payload = {"initializeUploadRequest": {"owner": self._author(post_as)}}
         async with httpx.AsyncClient(timeout=30) as client:
             init_response = await client.post(
                 f"{self.base_url}/images?action=initializeUpload",

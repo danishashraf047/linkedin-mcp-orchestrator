@@ -81,7 +81,8 @@ After drafting the post content, run the MCP workflow. Do not generate the image
 7. `save_generated_post` with the returned stored image `path`, `image.url`, and original generated raster image path, then keep the returned JSON `path`
 8. Pause for human approval of both the saved JSON post and the saved image
 9. `send_to_custom_api` using the returned `image.url`, saved JSON path, stored image path, and `approved=true`
-10. `publish_to_linkedin` only if the user explicitly approves publishing, passing the saved JSON path, stored image path, and `approved=true`
+10. Before publishing, ask whether to post as `personal` or `company`
+11. `publish_to_linkedin` only if the user explicitly approves publishing, passing the saved JSON path, stored image path, `approved=true`, and the selected `post_as`
 
 If image generation is unavailable, still generate the image prompt and explain that image upload cannot run without an actual image file.
 
@@ -107,10 +108,14 @@ Do not regenerate the image after the first acceptable image is produced. Upload
 
 Use `upload_generated_image` only when the image generation tool returns a real base64 payload from actual image bytes instead of a file path. Never invent placeholder base64 and never upload a tiny test image as if it were the generated image.
 
-If the image generation result is unavailable as a file path or real image bytes, stop and tell the user the image cannot be uploaded safely. Do not substitute a screenshot or recreated visual.
+If the built-in image generation tool displays an image but does not show a path in the chat, look for the generated raster under `$CODEX_HOME/generated_images/` or `~/.codex/generated_images/` and use the newest matching PNG/JPEG/WebP from that folder as the source image. Do this before telling the user no usable path exists.
+
+If no generated raster file exists under the built-in image output folder and the tool did not return real image bytes, stop and tell the user the image cannot be uploaded safely. Do not substitute a screenshot or recreated visual.
 
 ## Publishing Rule
 
 Never publish directly to LinkedIn unless the user explicitly approves publishing in that same workflow.
 
-When publishing, pass an `image_path`, `saved_post_path`, and `approved=true` by default. The publishing tool requires an image and saved artifacts unless `require_image=false` or `require_saved_artifacts=false` is explicitly set for a user-approved exception.
+Always ask where to publish before calling `publish_to_linkedin`: `personal` profile or `company` page.
+
+When publishing, pass an `image_path`, `saved_post_path`, `approved=true`, and `post_as` by default. Use `post_as="personal"` for the member profile and `post_as="company"` for the company page. Company publishing requires `LINKEDIN_ORGANIZATION_URN` in `.env`. The publishing tool requires an image and saved artifacts unless `require_image=false` or `require_saved_artifacts=false` is explicitly set for a user-approved exception.
