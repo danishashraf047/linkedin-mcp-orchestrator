@@ -152,23 +152,27 @@ The `linkedin-content-automation` MCP server exposes:
 - `send_to_custom_api`
 - `publish_to_linkedin`
 
-Preferred image flow:
+Preferred human approval flow:
 
 1. Draft the post package first: title, content, hashtags, tone/style, and image prompt.
-2. Call `validate_post_quality`.
-3. If validation fails, revise the post and validate again before generating any image.
-4. Generate the image once with Codex image generation only after validation passes.
-5. Call `upload_image_file` with the original generated image path.
-6. Call `save_generated_post` with the returned stored image path, `image.url`, and generated source image path.
-7. Keep the returned JSON path and use the returned `image.url` in the custom API payload.
-8. Review and approve both the saved JSON post and the saved image.
-9. Send or publish only after approval, passing `saved_post_path`, the stored image path, and `approved=true`.
+2. Show the complete post text and ask whether the text is valid.
+3. If the text is not valid, revise it and ask again before calling MCP validation.
+4. After text approval, call `validate_post_quality`.
+5. If validation fails, revise the post and return to the text approval step.
+6. After validation passes, call `generate_post_metadata`.
+7. Generate the image once with Codex chat image generation.
+8. Stop and ask the user to download/save that exact generated image and provide the local file path. Do not upload anything to MCP yet.
+9. Call `upload_image_file` with the user-provided generated image path.
+10. Call `save_generated_post` with the returned stored image path, `image.url`, and generated source image path.
+11. Ask whether to publish as `personal` or `company`.
+12. Show the final approval package: complete post text, saved image path, image URL, saved JSON path, selected post type, and validation score.
+13. Send or publish only after the user says `approve`, passing `saved_post_path`, the stored image path, selected `post_as`, and `approved=true`.
 
 Use `upload_generated_image` only when the client already has real base64 image bytes. The server rejects corrupt image bytes before writing files.
 
 Custom API sending and LinkedIn publishing require saved artifacts and approval by default. The saved JSON must include `metadata.approved_image`, and its image hash must match the stored image. To publish a text-only post, explicitly pass `require_image=false` after approval.
 
-Do not use SVG, HTML, canvas, browser screenshots, Playwright, or conversion/rendering workarounds for the default LinkedIn image workflow. The approved image must be the original raster image produced by image generation and uploaded directly to MCP.
+Do not use SVG, HTML, canvas, browser screenshots, Playwright, folder searches, or conversion/rendering workarounds for the default LinkedIn image workflow. The approved image must be the original raster image produced by image generation, downloaded/saved by the user, and uploaded directly to MCP from the user-provided path.
 
 ## Codex Workflow Prompt
 
