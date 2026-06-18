@@ -1,6 +1,8 @@
 import base64
 import binascii
+import hashlib
 import mimetypes
+import re
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +20,8 @@ from app.utils.storage_artifacts import file_sha256, verify_approved_image_artif
 
 logger = get_logger(__name__)
 
+GENERIC_POST_FILENAMES = {"post.json", "generated-post.json", "linkedin-post.json"}
+
 
 def _ok(message: str, **data: Any) -> dict[str, Any]:
     return ToolResponse(success=True, message=message, data=data).model_dump()
@@ -26,6 +30,22 @@ def _ok(message: str, **data: Any) -> dict[str, Any]:
 def _err(message: str, exc: Exception) -> dict[str, Any]:
     logger.exception("%s error=%s", message, exc)
     return ToolResponse(success=False, message=message, error=str(exc)).model_dump()
+
+
+def _post_filename(post: GeneratedPost, filename: str | None) -> str:
+    requested = Path(filename).name if filename else ""
+    if requested and requested.lower() not in GENERIC_POST_FILENAMES:
+        return requested if requested.endswith(".json") else f"{requested}.json"
+
+    slug = re.sub(r"[^a-z0-9]+", "-", post.title.lower()).strip("-") or "linkedin-post"
+    slug = slug[:80].strip("-")
+    fingerprint = (
+        post.metadata.get("fingerprint")
+        or post.metadata.get("style_fingerprint")
+        or post.metadata.get("post_metadata", {}).get("style_fingerprint")
+        or hashlib.sha256(post.content.encode("utf-8")).hexdigest()[:12]
+    )
+    return f"{slug}-{fingerprint}.json"
 
 
 async def save_generated_post(
@@ -62,7 +82,7 @@ async def save_generated_post(
 
         storage_dir = Path("storage/posts")
         storage_dir.mkdir(parents=True, exist_ok=True)
-        safe_name = filename or f"{validated.metadata.get('fingerprint', 'post')}.json"
+        safe_name = _post_filename(validated, filename)
         path = storage_dir / safe_name
         path.write_text(validated.model_dump_json(indent=2), encoding="utf-8")
         return _ok("Generated post saved", path=str(path), post=validated.model_dump())

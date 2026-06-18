@@ -81,7 +81,7 @@ After drafting the post content, follow this workflow exactly:
 7. Generate exactly one raster image from the image prompt using the chat image generation tool.
 8. Stop immediately after image generation and ask the user to download/save that generated chat image and provide the exact local file path, usually from Downloads. Do not upload anything to MCP yet.
 9. `upload_image_file` using the user-provided generated image path and keep the returned stored image `path`, `image.url`, and `source_path`.
-10. `save_generated_post` with the returned stored image `path`, `image.url`, and original generated image path, then keep the returned JSON `path`.
+10. `save_generated_post` with the returned stored image `path`, `image.url`, and original generated image path, then keep the returned JSON `path`. Do not use generic filenames like `post.json`; omit `filename` or use a descriptive title slug.
 11. Ask whether the final post should publish as `personal` or `company`.
 12. Show the final approval package: complete post text, saved image path, image URL, saved JSON path, selected post type, and validation score.
 13. Wait for the user to say `approve` before sending to the custom API or publishing to LinkedIn.

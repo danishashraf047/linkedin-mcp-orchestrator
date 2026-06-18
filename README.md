@@ -163,7 +163,7 @@ Preferred human approval flow:
 7. Generate the image once with Codex chat image generation.
 8. Stop and ask the user to download/save that exact generated image and provide the local file path. Do not upload anything to MCP yet.
 9. Call `upload_image_file` with the user-provided generated image path.
-10. Call `save_generated_post` with the returned stored image path, `image.url`, and generated source image path.
+10. Call `save_generated_post` with the returned stored image path, `image.url`, and generated source image path. Do not pass generic filenames like `post.json`; omit `filename` or use a descriptive title slug.
 11. Ask whether to publish as `personal` or `company`.
 12. Show the final approval package: complete post text, saved image path, image URL, saved JSON path, selected post type, and validation score.
 13. Send or publish only after the user says `approve`, passing `saved_post_path`, the stored image path, selected `post_as`, and `approved=true`.
