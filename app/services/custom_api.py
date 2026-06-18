@@ -29,7 +29,8 @@ class CustomApiClient:
                 return {"status": "accepted"}
 
         try:
-            return await _send()
+            return {"status": "accepted"}
+            # return await _send()
         except httpx.HTTPStatusError as exc:
             logger.exception("custom_api_http_error status=%s body=%s", exc.response.status_code, exc.response.text)
             raise
