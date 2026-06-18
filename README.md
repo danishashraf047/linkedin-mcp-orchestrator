@@ -153,11 +153,21 @@ The `linkedin-content-automation` MCP server exposes:
 
 Preferred image flow:
 
-1. Generate the image with Codex image generation.
-2. Call `upload_image_file` with the generated image path.
-3. Use the returned `image.url` in the custom API payload.
+1. Draft the post package first: title, content, hashtags, tone/style, and image prompt.
+2. Call `validate_post_quality`.
+3. If validation fails, revise the post and validate again before generating any image.
+4. Generate the image once with Codex image generation only after validation passes.
+5. Call `upload_image_file` with the original generated image path.
+6. Call `save_generated_post` with the returned stored image path, `image.url`, and generated source image path.
+7. Keep the returned JSON path and use the returned `image.url` in the custom API payload.
+8. Review and approve both the saved JSON post and the saved image.
+9. Send or publish only after approval, passing `saved_post_path`, the stored image path, and `approved=true`.
 
 Use `upload_generated_image` only when the client already has real base64 image bytes. The server rejects corrupt image bytes before writing files.
+
+Custom API sending and LinkedIn publishing require saved artifacts and approval by default. The saved JSON must include `metadata.approved_image`, and its image hash must match the stored image. To publish a text-only post, explicitly pass `require_image=false` after approval.
+
+Do not use SVG, HTML, canvas, browser screenshots, Playwright, or conversion/rendering workarounds for the default LinkedIn image workflow. The approved image must be the original raster image produced by image generation and uploaded directly to MCP.
 
 ## Codex Workflow Prompt
 
@@ -254,6 +264,9 @@ curl -X POST http://localhost:8000/api/integrations/custom-api \
     "content": "Post content here",
     "hashtags": ["#AIAutomation", "#SaaS"],
     "image_url": "http://localhost:8000/images/example.png",
+    "image_path": "storage/images/example.png",
+    "saved_post_path": "storage/posts/example.json",
+    "approved": true,
     "image_prompt": "Cinematic dark premium SaaS support workspace, no text",
     "platform": "linkedin",
     "author": "Danish",
@@ -270,6 +283,9 @@ curl -X POST http://localhost:8000/api/linkedin/publish \
   -d '{
     "content": "Post content here",
     "image_path": "storage/images/example.png",
+    "saved_post_path": "storage/posts/example.json",
+    "approved": true,
+    "require_image": true,
     "visibility": "PUBLIC"
   }'
 ```

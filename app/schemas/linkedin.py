@@ -5,7 +5,11 @@ class LinkedInPublishRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=3000)
     image_path: str | None = None
     image_url: str | None = None
+    saved_post_path: str | None = None
     visibility: str = "PUBLIC"
+    require_image: bool = True
+    require_saved_artifacts: bool = True
+    approved: bool = False
 
 
 class LinkedInPublishResult(BaseModel):

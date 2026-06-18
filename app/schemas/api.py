@@ -9,6 +9,10 @@ class CustomApiPostPayload(BaseModel):
     hashtags: list[str] = Field(default_factory=list)
     image_url: str = ""
     image_prompt: str = ""
+    image_path: str | None = Field(default=None, exclude=True)
+    saved_post_path: str | None = Field(default=None, exclude=True)
+    approved: bool = Field(default=False, exclude=True)
+    require_saved_artifacts: bool = Field(default=True, exclude=True)
     platform: str = "linkedin"
     author: str = ""
     tone: str = ""

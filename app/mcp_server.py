@@ -27,9 +27,23 @@ mcp = FastMCP(
 
 
 @mcp.tool()
-async def save_generated_post(post: dict, filename: str | None = None) -> dict:
-    """Persist a generated LinkedIn post as JSON in local storage."""
-    return await save_generated_post_impl(post, filename)
+async def save_generated_post(
+    post: dict,
+    filename: str | None = None,
+    image_path: str | None = None,
+    image_url: str | None = None,
+    source_image_path: str | None = None,
+    require_source_image: bool = True,
+) -> dict:
+    """Persist a generated LinkedIn post as JSON in local storage with optional approved image metadata."""
+    return await save_generated_post_impl(
+        post,
+        filename,
+        image_path,
+        image_url,
+        source_image_path,
+        require_source_image,
+    )
 
 
 @mcp.tool()
@@ -45,15 +59,37 @@ async def upload_image_file(image_path: str, mime_type: str | None = None, origi
 
 
 @mcp.tool()
-async def publish_to_linkedin(content: str, image_path: str | None = None, visibility: str = "PUBLIC") -> dict:
-    """Publish text or image content to LinkedIn."""
-    return await publish_to_linkedin_impl(content, image_path, visibility)
+async def publish_to_linkedin(
+    content: str,
+    image_path: str | None = None,
+    saved_post_path: str | None = None,
+    visibility: str = "PUBLIC",
+    require_image: bool = True,
+    require_saved_artifacts: bool = True,
+    approved: bool = False,
+) -> dict:
+    """Publish image content to LinkedIn by default; set require_image=false for text-only posts."""
+    return await publish_to_linkedin_impl(
+        content,
+        image_path,
+        saved_post_path,
+        visibility,
+        require_image,
+        require_saved_artifacts,
+        approved,
+    )
 
 
 @mcp.tool()
-async def send_to_custom_api(payload: dict) -> dict:
+async def send_to_custom_api(
+    payload: dict,
+    saved_post_path: str | None = None,
+    image_path: str | None = None,
+    require_saved_artifacts: bool = True,
+    approved: bool = False,
+) -> dict:
     """Send generated content to the configured custom API POST /api/posts endpoint."""
-    return await send_to_custom_api_impl(payload)
+    return await send_to_custom_api_impl(payload, saved_post_path, image_path, require_saved_artifacts, approved)
 
 
 @mcp.tool()

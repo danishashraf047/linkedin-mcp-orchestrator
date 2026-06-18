@@ -1,4 +1,5 @@
 import mimetypes
+import hashlib
 import uuid
 from pathlib import Path
 
@@ -31,6 +32,7 @@ class ImageStorage:
             "path": str(destination),
             "mime_type": content_type,
             "size_bytes": len(data),
+            "sha256": hashlib.sha256(data).hexdigest(),
             "url": f"{self.settings.public_base_url.rstrip('/')}/images/{filename}",
             "storage_backend": self.settings.storage_backend,
         }
@@ -49,6 +51,7 @@ class ImageStorage:
             "path": str(destination),
             "mime_type": mime_type,
             "size_bytes": len(content),
+            "sha256": hashlib.sha256(content).hexdigest(),
             "url": f"{self.settings.public_base_url.rstrip('/')}/images/{filename}",
             "storage_backend": self.settings.storage_backend,
         }

@@ -43,13 +43,14 @@ Ask all eight questions together. Keep them concise, and include the hint for ea
 
 ## Generation Rules
 
-After the user answers, generate:
+After the user answers, generate in this order:
 
 - a unique LinkedIn title
 - a unique LinkedIn post
 - relevant hashtags
 - a strong image prompt
-- an image from that image prompt
+
+Then validate the post content before generating any image. Generate the image only after the post passes validation.
 
 Avoid repetitive AI-style writing. Vary hooks, CTA style, paragraph rhythm, storytelling structure, sentence length, and emotional style. Do not default to openings like "Most people...", "Here's the truth...", "Nobody talks about...", or "I realized...".
 
@@ -69,25 +70,47 @@ The image should include the post title when useful. Keep typography sharp and r
 
 ## MCP Workflow
 
-After generating the post and image, run the MCP workflow. Do not stop after writing the post.
+After drafting the post content, run the MCP workflow. Do not generate the image until validation passes.
 
-1. `validate_post_quality`
-2. `generate_post_metadata`
-3. `save_generated_post`
-4. `upload_image_file` using the generated image path
-5. `send_to_custom_api` using the returned image URL
-6. `publish_to_linkedin` only if the user explicitly approves publishing
+1. Draft the post package: title, content, hashtags, tone/style, and image prompt. Do not generate an image yet.
+2. `validate_post_quality`
+3. If validation fails, revise the post and validate again before any image generation.
+4. `generate_post_metadata`
+5. Generate exactly one raster image from the image prompt using the image generation tool.
+6. `upload_image_file` using the original generated raster image path and keep the returned stored image `path`, `image.url`, and `source_path`
+7. `save_generated_post` with the returned stored image `path`, `image.url`, and original generated raster image path, then keep the returned JSON `path`
+8. Pause for human approval of both the saved JSON post and the saved image
+9. `send_to_custom_api` using the returned `image.url`, saved JSON path, stored image path, and `approved=true`
+10. `publish_to_linkedin` only if the user explicitly approves publishing, passing the saved JSON path, stored image path, and `approved=true`
 
 If image generation is unavailable, still generate the image prompt and explain that image upload cannot run without an actual image file.
 
 If one MCP step fails, report the failure and continue with later steps that still make sense. Example: if custom API forwarding fails, still report validation, metadata, save, and image upload results.
 
+Do not publish to LinkedIn if image generation, local image saving, or `upload_image_file` fails. Fix or regenerate the image first, then publish with `image_path`. Only publish text-only when the user explicitly approves a text-only post.
+
+Do not send the draft package to the custom API unless `upload_image_file` succeeded and returned an `image.url`. Use that URL as `image_url`.
+
+Do not send anything to the custom API or LinkedIn until the post exists as JSON in `storage/posts`, the image exists in `storage/images`, the saved JSON includes `metadata.approved_image`, and the user approves both artifacts.
+
+The saved JSON approved image hash must match the stored image hash and the generated source image hash. If they do not match, stop and re-upload the correct generated image.
+
+Never generate the image before `validate_post_quality` passes. This prevents wasting image generations on post drafts that still need revision.
+
 ## Image Rule
 
-Always prefer `upload_image_file` for generated images.
+Always use the original raster image produced by image generation as the source of truth.
 
-Use `upload_generated_image` only when there is a real base64 payload from actual image bytes. Never invent placeholder base64 and never upload a tiny test image as if it were the generated image.
+Do not create SVG, HTML, canvas, or React/CSS artwork for the LinkedIn image workflow. Do not use Playwright, browser screenshots, HTML-to-image, SVG-to-PNG, or any rendering/conversion workaround unless the user explicitly asks for that exact approach.
+
+Do not regenerate the image after the first acceptable image is produced. Upload that exact file directly to MCP with `upload_image_file`.
+
+Use `upload_generated_image` only when the image generation tool returns a real base64 payload from actual image bytes instead of a file path. Never invent placeholder base64 and never upload a tiny test image as if it were the generated image.
+
+If the image generation result is unavailable as a file path or real image bytes, stop and tell the user the image cannot be uploaded safely. Do not substitute a screenshot or recreated visual.
 
 ## Publishing Rule
 
 Never publish directly to LinkedIn unless the user explicitly approves publishing in that same workflow.
+
+When publishing, pass an `image_path`, `saved_post_path`, and `approved=true` by default. The publishing tool requires an image and saved artifacts unless `require_image=false` or `require_saved_artifacts=false` is explicitly set for a user-approved exception.
