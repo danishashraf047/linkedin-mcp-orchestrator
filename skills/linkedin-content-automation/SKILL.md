@@ -33,10 +33,10 @@ Ask all eight questions together. Keep them concise, and include the hint for ea
    Hint: confidence, urgency, clarity, curiosity, relief, ambition.
 
 6. What image style should accompany the post?
-   Hint: cinematic workspace, clean SaaS diagram, product mockup, editorial illustration, dashboard-style visual.
+   Hint: default to the signature dark premium infographic theme: black/navy background, white title text, blue-magenta gradient emphasis, neon line icons, subtle network lines, and a glowing digital wave.
 
 7. Any branding preference?
-   Hint: dark premium, blue/white, minimal neutral, CodeHills branding, no brand colors.
+   Hint: default dark premium technology palette with white, electric blue, cyan, violet, and magenta accents.
 
 8. What CTA should it use?
    Hint: ask a question, invite DMs, book a call, save/share, soft reflection, no direct CTA.
@@ -52,6 +52,20 @@ After the user answers, generate:
 - an image from that image prompt
 
 Avoid repetitive AI-style writing. Vary hooks, CTA style, paragraph rhythm, storytelling structure, sentence length, and emotional style. Do not default to openings like "Most people...", "Here's the truth...", "Nobody talks about...", or "I realized...".
+
+## Signature Image Theme
+
+Unless the user explicitly asks for a different visual direction, generate every image in this theme:
+
+- Square 1:1 LinkedIn post graphic.
+- Near-black/navy background with subtle constellation or network lines.
+- Glowing blue-to-magenta digital wave or dot field along the bottom.
+- Large, readable, uppercase post title in white, with one key word in a blue-to-magenta gradient.
+- Optional small spaced eyebrow text above the title and a short subtitle below it.
+- One to four minimalist neon outline icons only when they clarify the topic.
+- Thin neon dividers, high contrast, polished executive SaaS feel.
+
+The image should include the post title when useful. Keep typography sharp and readable. Avoid logos, stock photography, clutter, and paragraphs of tiny text.
 
 ## MCP Workflow
 

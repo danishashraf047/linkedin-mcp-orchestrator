@@ -13,3 +13,10 @@ Always adapt to:
 - tone
 - CTA preference
 - image style and branding
+
+Default image direction unless the user overrides it:
+- square LinkedIn infographic
+- near-black/navy premium tech background
+- white uppercase title typography with one blue-to-magenta gradient emphasis word
+- subtle network lines, neon dividers, and a glowing blue/magenta digital wave
+- optional minimalist line icons when they clarify the topic

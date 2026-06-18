@@ -48,6 +48,12 @@ TONES = [
     "curious and experimental",
 ]
 
+SIGNATURE_IMAGE_THEME = (
+    "signature dark premium LinkedIn infographic: near-black navy background, subtle network lines, "
+    "glowing blue-to-magenta digital wave along the bottom, white uppercase title typography, one "
+    "blue/magenta gradient emphasis word, thin neon dividers, optional minimalist line icons"
+)
+
 
 @dataclass(frozen=True)
 class PatternChoice:
@@ -183,14 +189,31 @@ class ContentEngine:
         return base[:6]
 
     def _image_prompt(self, request: FollowUpContext, choice: PatternChoice) -> str:
-        style = request.image_style or "clean editorial SaaS illustration"
-        brand = request.branding_preference or "modern neutral palette with one confident accent color"
-        return (
-            f"{style} for a LinkedIn post about {request.topic}. "
-            f"Visual metaphor: structured workflow becoming clearer without looking robotic. "
-            f"Audience: {request.target_audience or 'technology leaders'}. "
-            f"Branding: {brand}. No readable text, no logos, professional 16:9 composition."
+        style = request.image_style or SIGNATURE_IMAGE_THEME
+        brand = request.branding_preference or (
+            "dark premium technology palette: black/navy base, white text, electric blue, cyan, "
+            "violet, and magenta accents"
         )
+        title = self._image_title(request)
+        return (
+            f"Create a 1:1 LinkedIn image in this exact visual direction: {style}. "
+            f"Prominent post title: \"{title}\". "
+            f"Composition: small spaced eyebrow, large bold white title, one gradient emphasis word, "
+            f"short subtitle only if useful. Add one to four simple neon outline icons when they "
+            f"clarify the topic. "
+            f"Visual metaphor: structured workflow becoming clearer. "
+            f"Audience: {request.target_audience or 'technology leaders'}. "
+            f"Branding: {brand}. "
+            f"No logos, stock photos, clutter, or tiny paragraphs. Sharp readable typography, "
+            f"polished executive SaaS aesthetic."
+        )
+
+    def _image_title(self, request: FollowUpContext) -> str:
+        topic = " ".join(request.topic.strip().rstrip(".").split())
+        words = topic.split()
+        if len(words) > 8:
+            topic = " ".join(words[:8])
+        return topic.upper()
 
     def _fingerprint(self, content: str) -> str:
         normalized = " ".join(content.lower().split())

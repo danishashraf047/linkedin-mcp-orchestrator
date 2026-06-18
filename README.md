@@ -168,6 +168,8 @@ Create a LinkedIn post about AI automation for SaaS support teams with MCP.
 
 Before writing, ask me follow-up questions about audience, tone, depth, goal, emotional impact, image style, branding, and CTA.
 
+Use the signature image theme by default: a square dark premium LinkedIn infographic with a black/navy background, white title typography, blue-to-magenta gradient emphasis, subtle network lines, optional neon outline icons, and a glowing digital wave.
+
 After I answer:
 1. Generate a unique LinkedIn post.
 2. Generate a title, hashtags, and image prompt.
@@ -229,8 +231,8 @@ curl -X POST http://localhost:8000/api/content/generate \
     "topic_depth": "technical breakdown",
     "platform_goal": "start conversations",
     "desired_emotional_impact": "confidence",
-    "image_style": "cinematic workspace",
-    "branding_preference": "dark premium",
+    "image_style": "signature dark premium LinkedIn infographic",
+    "branding_preference": "black/navy background, white text, electric blue, cyan, violet, and magenta accents",
     "cta_preference": "book a call"
   }'
 ```
