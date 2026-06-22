@@ -39,6 +39,8 @@ skills/
   linkedin-content-automation/SKILL.md
 scripts/
   run-dev.sh              Start FastAPI and FastMCP together
+docs/
+  run-with-macos-automator.md
 storage/
   images/                 generated/uploaded image files
   posts/                  saved generated post JSON files
@@ -84,6 +86,8 @@ LinkedIn values are only required when you want to publish directly to LinkedIn.
 ```
 
 This activates `.venv`, starts FastAPI at `http://127.0.0.1:8000`, and starts FastMCP at `http://127.0.0.1:8765/mcp`. Press Ctrl+C to stop both services.
+
+To run this command from a double-clickable macOS Automator app, see [Run With macOS Automator](docs/run-with-macos-automator.md).
 
 ## Run FastAPI
 
