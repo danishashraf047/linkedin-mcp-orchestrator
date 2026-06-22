@@ -37,6 +37,8 @@ app/
   utils/                  logging, retry, image validation helpers
 skills/
   linkedin-content-automation/SKILL.md
+scripts/
+  run-dev.sh              Start FastAPI and FastMCP together
 storage/
   images/                 generated/uploaded image files
   posts/                  saved generated post JSON files
@@ -74,6 +76,14 @@ LINKEDIN_ORGANIZATION_URN=urn:li:organization:YOUR_ORGANIZATION_ID
 ```
 
 LinkedIn values are only required when you want to publish directly to LinkedIn. Use `post_as="personal"` for the member profile or `post_as="company"` for the company page. Company publishing requires `LINKEDIN_ORGANIZATION_URN`.
+
+## Run FastAPI + MCP Together
+
+```bash
+./scripts/run-dev.sh
+```
+
+This activates `.venv`, starts FastAPI at `http://127.0.0.1:8000`, and starts FastMCP at `http://127.0.0.1:8765/mcp`. Press Ctrl+C to stop both services.
 
 ## Run FastAPI
 
