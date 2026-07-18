@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     linkedin_access_token: str = ""
     linkedin_person_urn: str = ""
     linkedin_organization_urn: str = ""
-    linkedin_api_version: str = "202506"
+    linkedin_api_version: str = "202606"
 
     storage_backend: str = "local"
     local_storage_dir: Path = Field(default=Path("storage/images"))

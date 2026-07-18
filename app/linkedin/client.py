@@ -11,6 +11,10 @@ from app.utils.retry import async_retry
 logger = get_logger(__name__)
 
 
+class LinkedInApiVersionError(RuntimeError):
+    pass
+
+
 class LinkedInClient:
     base_url = "https://api.linkedin.com/rest"
 
@@ -27,6 +31,15 @@ class LinkedInClient:
             "Content-Type": content_type,
         }
 
+    def _raise_for_status(self, response: httpx.Response) -> None:
+        if response.status_code == 426:
+            raise LinkedInApiVersionError(
+                "LinkedIn rejected the configured API version. "
+                f"LINKEDIN_API_VERSION={self.settings.linkedin_api_version!r} may be sunset; "
+                "update it to a supported YYYYMM version from LinkedIn's versioned API docs."
+            )
+        response.raise_for_status()
+
     def _author(self, post_as: str = "personal") -> str:
         if post_as == "company":
             if not self.settings.linkedin_organization_urn:
@@ -39,7 +52,7 @@ class LinkedInClient:
     async def validate_token(self) -> dict[str, Any]:
         async with httpx.AsyncClient(timeout=15) as client:
             response = await client.get("https://api.linkedin.com/v2/userinfo", headers=self._headers())
-            response.raise_for_status()
+            self._raise_for_status(response)
             logger.info("linkedin_token_validated")
             return response.json()
 
@@ -93,7 +106,7 @@ class LinkedInClient:
                 json=init_payload,
                 headers=self._headers(),
             )
-            init_response.raise_for_status()
+            self._raise_for_status(init_response)
             init_data = init_response.json()["value"]
             upload_url = init_data["uploadUrl"]
             image_urn = init_data["image"]
@@ -102,7 +115,7 @@ class LinkedInClient:
                 content=path.read_bytes(),
                 headers={"Authorization": f"Bearer {self.settings.linkedin_access_token}", "Content-Type": "application/octet-stream"},
             )
-            upload_response.raise_for_status()
+            self._raise_for_status(upload_response)
             logger.info("linkedin_image_uploaded asset=%s", image_urn)
             return image_urn
 
@@ -111,7 +124,7 @@ class LinkedInClient:
         async def _send() -> dict[str, Any]:
             async with httpx.AsyncClient(timeout=30) as client:
                 response = await client.post(f"{self.base_url}/posts", json=payload, headers=self._headers())
-                response.raise_for_status()
+                self._raise_for_status(response)
                 logger.info("linkedin_post_published status=%s", response.status_code)
                 if response.content:
                     return response.json()
